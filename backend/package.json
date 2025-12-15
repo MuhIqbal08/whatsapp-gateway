@@ -16,7 +16,9 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@hapi/boom": "^10.0.1",
     "@whiskeysockets/baileys": "^7.0.0-rc.6",
+    "baileys": "^7.0.0-rc.9",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",

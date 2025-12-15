@@ -1,6 +1,6 @@
 'use client'
 import api from "@/lib/axios";
-import { assets } from "@/public/assets";
+import { assets } from "@/lib/assets";
 import Image from "next/image";
 import React from "react";
 
@@ -9,6 +9,7 @@ const RegisterPage = () => {
     const [email, setEmail] = React.useState('');
     const [password, setPassword] = React.useState('');
     const [confirmPassword, setConfirmPassword] = React.useState('');
+    const [phoneNumber, setPhoneNumber] = React.useState('');
   const handleSubmit = async(e) => {
     e.preventDefault();
     try {
@@ -16,7 +17,8 @@ const RegisterPage = () => {
             name,
             email,
             password,
-            confirmPassword
+            confirmPassword,
+            phoneNumber
         })
         alert(res.data.message || "Register Berhasil!")
         window.location.href = '/login'
@@ -125,6 +127,24 @@ const RegisterPage = () => {
                 //   autoComplete="new-password"
                   minLength={8}
                   onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+              </div>
+
+              {/* Confirm Password Input */}
+              <div>
+                <label htmlFor="phoneNumber" className="sr-only">
+                  Phone Number
+                </label>
+                <input
+                  type="text"
+                  id="phoneNumber"
+                  name="phoneNumber"
+                  className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-3 text-sm text-gray-900 transition-colors focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-cyan-500 dark:focus:ring-cyan-500/20"
+                  placeholder="Phone Number"
+                  required
+                //   autoComplete="new-password"
+                  minLength={8}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
                 />
               </div>
 

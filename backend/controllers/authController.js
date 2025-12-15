@@ -14,7 +14,7 @@ export const register = async (req, res) => {
       confirmPassword,
     } = req.body;
 
-    if (!name || !email || !phoneNumber || !password || !roleId)
+    if (!name || !email || !phoneNumber || !password || !confirmPassword)
       return res.status(400).json({ error: "All fields are required" });
 
     const existing = await User.findOne({ where: { email } });
@@ -34,6 +34,10 @@ export const register = async (req, res) => {
     const existingPhoneNumber = await User.findOne({ where: { phoneNumber } });
     if (existingPhoneNumber)
       return res.status(400).json({ error: "Phone number already exists" });
+    
+    const phoneRegex = /^[0-9]{10,15}$/;
+    if (!phoneRegex.test(phoneNumber))
+      return res.status(400).json({ error: "Invalid phone number format" });
 
     const userRole = await Role.findOne({ where: { name: "user" } });
     if (!userRole) return res.status(400).json({ error: "Invalid role" });

@@ -1,6 +1,6 @@
 "use client";
 import api from "@/lib/axios";
-import { assets } from "@/public/assets";
+import { assets } from "@/lib/assets";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -22,6 +22,7 @@ const LoginPage = () => {
       });
       const { token } = res.data;
 
+      document.cookie = `token=${token}; path=/; max-age=86400; secure; samesite=strict`;
       localStorage.setItem("token", token);
 
     //   alert(`Welcome ${user.name}!`);

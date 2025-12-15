@@ -1,2 +1,7 @@
 node_modules
 .env
+whatsapp/connecting.js
+whatsapp/connection copy.js
+whatsapp/connection-old.js
+whatsapp/connection-old2.js
+sessions/*

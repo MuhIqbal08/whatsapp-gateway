@@ -15,7 +15,7 @@ module.exports = {
         allowNull: false,
         unique: true
       },
-      deskripsi: {
+      description: {
         type: Sequelize.STRING
       },
       createdAt: Sequelize.DATE,

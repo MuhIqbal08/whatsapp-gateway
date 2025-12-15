@@ -33,7 +33,7 @@ export default (sequelize, DataTypes) => {
       },
     },
     {
-      tableName: "whatsapp_message",
+      tableName: "whatsapp_messages",
     }
   );
 

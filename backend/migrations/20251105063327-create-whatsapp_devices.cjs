@@ -3,7 +3,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('whatapp_devices', {
+    await queryInterface.createTable('whatsapp_devices', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
@@ -20,15 +20,18 @@ module.exports = {
       },
       name: {
         type: Sequelize.STRING,
+        allowNull: false
       },
       phoneNumber: {
         type: Sequelize.STRING,
+        allowNull: false
       },
       sessionData: {
         type: Sequelize.JSON
       },
       isActive: {
-        type: Sequelize.BOOLEAN
+        type: Sequelize.BOOLEAN,
+        allowNull: false
       },
       createdAt: Sequelize.DATE,
       updatedAt: Sequelize.DATE
@@ -36,6 +39,6 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('whatapp_devices');
+    await queryInterface.dropTable('whatsapp_devices');
   }
 };

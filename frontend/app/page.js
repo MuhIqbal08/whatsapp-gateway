@@ -3,8 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import { MessageCircle, Zap, Shield, Code, CheckCircle, ArrowRight, Menu, X, Star, Users, Clock, TrendingUp } from 'lucide-react';
 import Image from 'next/image';
-import { assets } from '@/public/assets';
+// import { assets } from '@/public/assets';
 import Link from 'next/link';
+import { assets } from '@/lib/assets';
 
 export default function JustwaLanding() {
   const [scrolled, setScrolled] = useState(false);

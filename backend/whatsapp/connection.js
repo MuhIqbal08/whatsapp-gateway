@@ -1,96 +1,124 @@
-import { default as makeWASocket, useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion } from "@whiskeysockets/baileys";
-import qrcode from "qrcode-terminal";
-import path from "path";
+import makeWASocket, {
+  Browsers,
+  DisconnectReason,
+  useMultiFileAuthState,
+} from "@whiskeysockets/baileys";
+import { Boom } from "@hapi/boom";
 import fs from "fs";
-import db from "../models/index.js"; // pastikan index.js di models sudah pakai ESM juga
-import { io } from "../app.js";
+import path from "path";
+import db from "../models/index.js";
 
-const WhatsAppDevice = db.WhatsAppDevice;
-const WhatsAppMessage = db.WhatsAppMessage;
+const { WhatsAppDevice } = db;
 
-const sessions = new Map();
+const sockets = new Map();
+let io = null;
 
-export async function startWhatsApp(deviceId) {
-  try {
+export function setIo(ioServer) {
+  io = ioServer;
+}
+
+const connecting = new Map();
+
+export const connectToWhatsAppWithId = async (deviceId) => {
+  const existingSock = sockets.get(deviceId);
+
+  if (existingSock?.user) {
+    return existingSock;
+  }
+
+  sockets.delete(deviceId);
+
+  if (connecting.has(deviceId)) {
+    return connecting.get(deviceId);
+  }
+
+  const connectPromise = (async () => {
     const device = await WhatsAppDevice.findByPk(deviceId);
     if (!device) throw new Error("Device not found");
 
-    const sessionPath = path.join(process.cwd(), `sessions/${deviceId}`);
-    if (!fs.existsSync(sessionPath)) {
-      fs.mkdirSync(sessionPath, { recursive: true });
-    }
+    const sessionPath = path.join("sessions", deviceId.toString());
+    fs.mkdirSync(sessionPath, { recursive: true });
 
     const { state, saveCreds } = await useMultiFileAuthState(sessionPath);
-    const { version } = await fetchLatestBaileysVersion();
 
     const sock = makeWASocket({
-      version,
-      printQRInTerminal: true,
       auth: state,
-      browser: ["MyApp", "Chrome", "1.0.0"],
+      browser: Browsers.windows("Chrome"),
+      generateHighQualityLinkPreview: true,
     });
 
-    sessions.set(deviceId, sock);
+    sockets.set(deviceId, sock);
+
+    sock.ev.on("creds.update", saveCreds);
 
     sock.ev.on("connection.update", async (update) => {
-      const { connection, lastDisconnect, qr } = update;
+      const { qr, connection, lastDisconnect } = update;
 
-      if (qr) {
-        console.log(`📱 QR Code untuk device: ${device.name}`);
-        qrcode.generate(qr, { small: true });
-        if (io) io.emit(`qr-${deviceId}`, { qr });
-      }
+      io?.emit(`qr-${deviceId}`, { qr: qr || null });
 
       if (connection === "open") {
-        console.log(`✅ WhatsApp Connected (${device.name})`);
         await device.update({ isActive: true });
-      } else if (connection === "close") {
-        const reason =
-          lastDisconnect?.error?.output?.statusCode ||
-          lastDisconnect?.error?.statusCode ||
-          lastDisconnect?.error?.message ||
-          "unknown";
+        io?.emit(`qr-${deviceId}`, { connected: true, qr: null });
+      }
 
-        console.log("❌ Connection closed:", reason);
-        await device.update({ isActive: false });
+      if (connection === "close") {
+        sockets.delete(deviceId);
+        connecting.delete(deviceId);
 
-        if (reason !== DisconnectReason.loggedOut) {
-          console.log("🔄 Reconnecting...");
-          startWhatsApp(deviceId);
+        const shouldReconnect =
+          lastDisconnect?.error instanceof Boom &&
+          lastDisconnect.error.output.statusCode !== DisconnectReason.loggedOut;
+
+        if (shouldReconnect) {
+          connectToWhatsAppWithId(deviceId);
         } else {
-          console.log("⚠️ Session expired. Silakan scan ulang QR.");
+          await device.update({ isActive: false });
         }
       }
     });
 
-    sock.ev.on("creds.update", saveCreds);
-
-    sock.ev.on("messages.upsert", async (msgUpdate) => {
-      const msg = msgUpdate.messages[0];
-      if (!msg.message) return;
-
-      const sender = msg.key.remoteJid;
-      const text =
-        msg.message.conversation || msg.message.extendedTextMessage?.text;
-
-      console.log("📩 Pesan baru dari:", sender, "=>", text);
-
-      await WhatsAppMessage.create({
-        userId: device.userId,
-        deviceId: device.id,
-        content: text,
-        sender,
-        recipient: "me",
-        status: "received",
-      });
-    });
-
     return sock;
-  } catch (error) {
-    console.error("❌ startWhatsApp error:", error.message);
-  }
-}
+  })();
 
-export function getSocket(deviceId) {
-  return sessions.get(deviceId);
-}
+  connecting.set(deviceId, connectPromise);
+
+  try {
+    return await connectPromise;
+  } finally {
+    connecting.delete(deviceId);
+  }
+};
+
+export const ensureConnected = async (deviceId, timeoutMs = 20000) => {
+  sockets.delete(deviceId);
+
+  const sock = await connectToWhatsAppWithId(deviceId);
+
+  return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      sock.ev.off("connection.update", onUpdate);
+      reject(new Error("Connection timeout"));
+    }, timeoutMs);
+
+    const onUpdate = (update) => {
+      if (update.connection === "open") {
+        clearTimeout(timeout);
+        sock.ev.off("connection.update", onUpdate);
+        resolve(sock);
+      }
+
+      if (update.connection === "close") {
+        clearTimeout(timeout);
+        sock.ev.off("connection.update", onUpdate);
+        reject(new Error("Connection Closed"));
+      }
+    };
+
+    sock.ev.on("connection.update", onUpdate);
+  });
+};
+
+export const getSock = (deviceId) => {
+  const sock = sockets.get(deviceId);
+  return sock?.user ? sock : null;
+};

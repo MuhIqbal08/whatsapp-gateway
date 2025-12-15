@@ -10,6 +10,8 @@ import roleRoutes from "./routes/roleRoutes.js";
 import permissionRoutes from "./routes/permissionRoutes.js";
 import whatsappRoutes from "./routes/whatsappRoutes.js";
 import db from "./models/index.js"; // pastikan index.js di models sudah ESM
+import { connectToWhatsApp, getSock } from "./whatsapp/connecting.js";
+import { setIo } from "./whatsapp/connection.js";
 
 dotenv.config();
 
@@ -19,12 +21,14 @@ const server = http.createServer(app);
 // Inisialisasi Socket.io
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: "*",
     methods: ["GET", "POST"],
-    allowedHeaders: ["my-custom-header"],
     credentials: true,
   },
 });
+
+// inject io ke module connection
+setIo(io);
 
 // Middleware
 app.use(
@@ -42,10 +46,25 @@ app.use("/api/role", roleRoutes);
 app.use("/api/permission", permissionRoutes);
 app.use("/api/whatsapp", whatsappRoutes);
 
+app.get("/connect", async (req, res) => {
+  try {
+    if (!getSock()) {
+      await connectToWhatsApp();
+      return res.json({ message: "WhatsApp is connecting..." });
+    }
+
+    return res.json({ message: "WhatsApp already connected." });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 // Root endpoint
 app.get("/", (req, res) => {
   res.json({ message: "🚀 Server is Running!" });
 });
+
+global.io = io;
 
 // Socket.io Events
 io.on("connection", (socket) => {

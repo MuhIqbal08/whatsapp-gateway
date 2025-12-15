@@ -11,12 +11,19 @@ export default (sequelize, DataTypes) => {
         type: DataTypes.UUID,
         allowNull: false,
       },
-      name: DataTypes.STRING,
-      phoneNumber: DataTypes.STRING,
+      name: {
+        type: DataTypes.STRING,
+        allowNull: false
+      }, 
+      phoneNumber: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
       sessionData: DataTypes.JSON,
       isActive: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
+        allowNull: false
       },
       createdAt: {
         type: DataTypes.DATE,
@@ -28,7 +35,7 @@ export default (sequelize, DataTypes) => {
       },
     },
     {
-      tableName: "whatsapp_device",
+      tableName: "whatsapp_devices",
     }
   );
 
