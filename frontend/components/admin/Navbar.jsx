@@ -1,7 +1,7 @@
 import { Bell, Menu, Search, X } from 'lucide-react';
 import React from 'react'
 
-const Header = ({ isCollapse, setIsCollapse, isMobileMenuOpen, setIsMobileMenuOpen }) => {
+const Navbar = ({ isCollapse, setIsCollapse, isMobileMenuOpen, setIsMobileMenuOpen }) => {
   return (
     <>
     <nav className="py-[9.5px] bg-white/80 backdrop-blur-lg flex items-center justify-between px-4 sticky top-0 z-30 border-b border-gray-200">
@@ -46,4 +46,4 @@ const Header = ({ isCollapse, setIsCollapse, isMobileMenuOpen, setIsMobileMenuOp
   )
 }
 
-export default Header
+export default Navbar

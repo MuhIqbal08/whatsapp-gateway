@@ -3,17 +3,16 @@
 import {
   Users,
   MessageSquareMore,
-  ChartNoAxesColumn,
 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import Chart from "chart.js/auto";
 import DashboardChart from "@/components/admin/Chart";
 
-const UserDashboard = () => {
+const AdminDashboard = () => {
   const messagesChartRef = useRef(null);
   const devicesChartRef = useRef(null);
   const messagesChartInstance = useRef(null);
-  const statusMessageChartInstance = useRef(null);
+  const devicesChartInstance = useRef(null);
 
   // Data untuk 12 bulan
   const months = [
@@ -43,8 +42,8 @@ const UserDashboard = () => {
     messagesGradient.addColorStop(1, "rgba(16, 185, 129, 0.1)");
 
     // Gradient untuk Devices Chart
-    const statusMessageCtx = devicesChartRef.current.getContext("2d");
-    const devicesGradient = statusMessageCtx.createLinearGradient(0, 0, 0, 400);
+    const devicesCtx = devicesChartRef.current.getContext("2d");
+    const devicesGradient = devicesCtx.createLinearGradient(0, 0, 0, 400);
     devicesGradient.addColorStop(0, "rgba(0, 172, 193, 0.8)");
     devicesGradient.addColorStop(1, "rgba(0, 172, 193, 0.1)");
 
@@ -52,8 +51,8 @@ const UserDashboard = () => {
     if (messagesChartInstance.current) {
       messagesChartInstance.current.destroy();
     }
-    if (statusMessageChartInstance.current) {
-      statusMessageChartInstance.current.destroy();
+    if (devicesChartInstance.current) {
+      devicesChartInstance.current.destroy();
     }
 
     // Messages Chart
@@ -143,26 +142,19 @@ const UserDashboard = () => {
     });
 
     // Devices Chart
-     // Devices Chart (Pie Chart untuk Status)
-    statusMessageChartInstance.current = new Chart(statusMessageCtx, {
-      type: "pie",
+    devicesChartInstance.current = new Chart(devicesCtx, {
+      type: "bar",
       data: {
-        labels: ["Success", "Pending", "Failed"],
+        labels: months,
         datasets: [
           {
-            label: "Message Status",
-            data: [3250, 450, 180], // Success, Pending, Failed
-            backgroundColor: [
-              "rgba(16, 185, 129, 0.8)", // Success - emerald
-              "rgba(245, 158, 11, 0.8)", // Pending - amber
-              "rgba(239, 68, 68, 0.8)",  // Failed - red
-            ],
-            borderColor: [
-              "rgb(16, 185, 129)",
-              "rgb(245, 158, 11)",
-              "rgb(239, 68, 68)",
-            ],
+            label: "Total Devices",
+            data: devicesData,
+            backgroundColor: devicesGradient,
+            borderColor: "rgb(0, 172, 193)",
             borderWidth: 2,
+            borderRadius: 8,
+            borderSkipped: false,
           },
         ],
       },
@@ -185,12 +177,35 @@ const UserDashboard = () => {
             },
             callbacks: {
               label: function (context) {
-                const label = context.label || '';
-                const value = context.parsed || 0;
-                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                const percentage = ((value / total) * 100).toFixed(1);
-                return `${label}: ${value.toLocaleString()} (${percentage}%)`;
+                return "Devices: " + context.parsed.y;
               },
+            },
+          },
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: "rgba(0, 0, 0, 0.05)",
+              drawBorder: false,
+            },
+            ticks: {
+              font: {
+                size: 12,
+              },
+              color: "#6b7280",
+            },
+          },
+          x: {
+            grid: {
+              display: false,
+              drawBorder: false,
+            },
+            ticks: {
+              font: {
+                size: 12,
+              },
+              color: "#6b7280",
             },
           },
         },
@@ -201,8 +216,8 @@ const UserDashboard = () => {
       if (messagesChartInstance.current) {
         messagesChartInstance.current.destroy();
       }
-      if (statusMessageChartInstance.current) {
-        statusMessageChartInstance.current.destroy();
+      if (devicesChartInstance.current) {
+        devicesChartInstance.current.destroy();
       }
     };
   }, []);
@@ -220,6 +235,20 @@ const UserDashboard = () => {
             <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between">
                 <div>
+                  <p className="text-sm text-gray-600 mb-1">Total Users</p>
+                  <p className="text-2xl font-bold text-emerald-600">
+                    {totalMessages.toLocaleString()}
+                  </p>
+                </div>
+                <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
+                  <Users className="w-6 h-6 text-emerald-600" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between">
+                <div>
                   <p className="text-sm text-gray-600 mb-1">
                     Total Messages
                   </p>
@@ -229,20 +258,6 @@ const UserDashboard = () => {
                 </div>
                 <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
                   <MessageSquareMore className="w-6 h-6 text-emerald-600" />
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Avg. Messages/Month</p>
-                  <p className="text-2xl font-bold text-emerald-600">
-                    {avgMessages.toLocaleString()}
-                  </p>
-                </div>
-                <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
-                  <ChartNoAxesColumn className="w-6 h-6 text-emerald-600" />
                 </div>
               </div>
             </div>
@@ -308,4 +323,4 @@ const UserDashboard = () => {
   );
 };
 
-export default UserDashboard;
+export default AdminDashboard;

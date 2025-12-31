@@ -3,9 +3,11 @@ import { authenticate } from "../middleware/authMiddleware.js";
 import { authorize } from "../middleware/roleMiddleware.js";
 import {
   deleteDevice,
+  getAllParticipatingGroups,
   getDevices,
   registerDevice,
   sendMessage,
+  sendMessageGroup,
 } from "../controllers/whatsappController.js";
 import { connectToWhatsAppWithId } from "../whatsapp/connection.js";
 
@@ -31,5 +33,7 @@ router.get("/connect/:id", async (req, res) => {
 });
 
 router.post("/send", authenticate, authorize("send_message"), sendMessage);
+router.post("/send/group", authenticate, authorize("send_message"), sendMessageGroup);
+router.get('/participating/group/:deviceId', authenticate, authorize("send_message"), getAllParticipatingGroups);
 
 export default router;

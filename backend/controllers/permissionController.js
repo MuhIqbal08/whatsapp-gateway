@@ -22,7 +22,18 @@ export const createPermission = async (req, res) => {
 export const getAllPermissions = async (req, res) => {
   try {
     const permissions = await Permission.findAll();
-    res.json(permissions);
+    res.status(200).json(permissions);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const getPermissionId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const permission = await Permission.findByPk(id);
+    if (!permission) return res.status(404).json({ error: "Permission not found" });
+    res.status(200).json(permission);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

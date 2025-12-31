@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { usePathname } from "next/navigation";
 import Navbar from "@/components/admin/Navbar";
 import Sidebar from "@/components/admin/Sidebar";
-import { BarChart3, LayoutDashboard, MessageSquare, Phone, Settings, Shield, UserCog, Users } from "lucide-react";
+import { LayoutDashboard, Shield, UserCog, Users } from "lucide-react";
 
 const AdminLayout = ({ children }) => {
   const [isCollapse, setIsCollapse] = useState(false);
@@ -11,11 +11,34 @@ const AdminLayout = ({ children }) => {
     const pathname = usePathname();
 
   const menuItems = [
-    { id: "dashboard", icon: BarChart3, label: "Dashboard", active: pathname === "/user/dashboard", url: "/user/dashboard" },
-    { id: "messages", icon: MessageSquare, label: "Messages", active: pathname === "/user/message", url: "/user/message" },
-    { id: "contacts", icon: Users, label: "MessagesGrup", active: pathname === "/user/group", url: "/user/group" },
-    { id: "devices", icon: Phone, label: "Devices", active: pathname === "/user/device", url: "/user/device" },
-    { id: "settings", icon: Settings, label: "Settings", url: "/user/settings" },
+    {
+      id: "dashboard",
+      icon: LayoutDashboard,
+      label: "Dashboard",
+      active: pathname === "/admin/dashboard",
+      url: "/admin/dashboard",
+    },
+    {
+      id: "users",
+      icon: Users,
+      label: "Users",
+      active: pathname === "/admin/users",
+      url: "/admin/users",
+    },
+    {
+      id: "roles",
+      icon: UserCog,
+      label: "Roles",
+      active: pathname === "/admin/roles",
+      url: "/admin/roles",
+    },
+    {
+      id: "permissions",
+      icon: Shield,
+      label: "Permissons",
+      active: pathname === "/admin/permissions",
+      url: "/admin/permissions",
+    },
   ];
 
 
