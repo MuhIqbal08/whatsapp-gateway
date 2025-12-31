@@ -35,14 +35,14 @@ WhatsApp Gateway API adalah aplikasi backend & dashboard web untuk mengelola pen
 
 ## Cara Menjalankan
 
-**Backend**
-```bash
-cd backend
-npm install
-npm run dev
+1. **Backend**
+   ```bash
+   cd backend
+   npm install
+   npm run dev
 
-**Frontend**
-```bash
-cd frontend
-npm install
-npm run dev
+2. **Frontend**
+    ```bash
+    cd frontend
+    npm install
+    npm run dev
