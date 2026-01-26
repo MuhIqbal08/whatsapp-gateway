@@ -37,7 +37,7 @@ const Navbar = ({ isCollapse, setIsCollapse, isMobileMenuOpen, setIsMobileMenuOp
                   <Bell className="w-5 h-5" />
                   <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
                 </button> */}
-                <div className="w-9 h-9 rounded-full bg-linear-to-br from-emerald-400 to-cyan-400 flex items-center justify-center font-bold text-white">
+                <div className="w-9 h-9 rounded-fu  ll bg-linear-to-br from-emerald-400 to-cyan-400 flex items-center justify-center font-bold text-white">
                   JD
                 </div>
               </div>

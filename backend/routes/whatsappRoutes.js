@@ -1,5 +1,5 @@
 import express from "express";
-import { authenticate } from "../middleware/authMiddleware.js";
+import { authenticate, authMiddleware } from "../middleware/authMiddleware.js";
 import { authorize } from "../middleware/roleMiddleware.js";
 import {
   deleteDevice,
@@ -10,15 +10,16 @@ import {
   sendMessageGroup,
 } from "../controllers/whatsappController.js";
 import { connectToWhatsAppWithId } from "../whatsapp/connection.js";
+import { apiKeyMiddleware } from "../middleware/apiKeyMiddleware.js";
 
 const router = express.Router();
-router.post("/device", authenticate, authorize("send_message"), registerDevice);
+router.post("/device", authMiddleware, authorize("send_message"), registerDevice);
 
-router.get("/device", authenticate, authorize("send_message"), getDevices);
+router.get("/device", authMiddleware, authorize("send_message"), getDevices);
 
 router.delete(
   "/device/:id",
-  authenticate,
+  authMiddleware,
   authorize("send_message"),
   deleteDevice
 );
@@ -32,8 +33,8 @@ router.get("/connect/:id", async (req, res) => {
     }
 });
 
-router.post("/send", authenticate, authorize("send_message"), sendMessage);
-router.post("/send/group", authenticate, authorize("send_message"), sendMessageGroup);
-router.get('/participating/group/:deviceId', authenticate, authorize("send_message"), getAllParticipatingGroups);
+router.post("/send", authMiddleware, authorize("send_message"), apiKeyMiddleware, sendMessage);
+router.post("/send/group", authMiddleware, authorize("send_message"), apiKeyMiddleware, sendMessageGroup);
+router.get('/participating/group/:deviceId', authMiddleware, authorize("send_message"), getAllParticipatingGroups);
 
 export default router;

@@ -8,15 +8,25 @@ import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import roleRoutes from "./routes/roleRoutes.js";
 import permissionRoutes from "./routes/permissionRoutes.js";
+import apiKeysRoute from "./routes/apiKeysRoute.js";
 import whatsappRoutes from "./routes/whatsappRoutes.js";
 import db from "./models/index.js"; // pastikan index.js di models sudah ESM
-import { connectToWhatsApp, getSock } from "./whatsapp/connecting.js";
+// import { connectToWhatsApp, getSock } from "./whatsapp/connecting.js";
 import { setIo } from "./whatsapp/connection.js";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
+
+app.use((req, res, next) => {
+  res.setHeader(
+    "Cross-Origin-Opener-Policy",
+    "same-origin-allow-popups"
+  );
+  next();
+});
 
 // Inisialisasi Socket.io
 const io = new Server(server, {
@@ -38,6 +48,7 @@ app.use(
   })
 );
 app.use(express.json());
+app.use(cookieParser());
 
 // Routes
 app.use("/api/auth", authRoutes);
@@ -45,19 +56,20 @@ app.use("/api/user", userRoutes);
 app.use("/api/role", roleRoutes);
 app.use("/api/permission", permissionRoutes);
 app.use("/api/whatsapp", whatsappRoutes);
+app.use("/api/api-key", apiKeysRoute)
 
-app.get("/connect", async (req, res) => {
-  try {
-    if (!getSock()) {
-      await connectToWhatsApp();
-      return res.json({ message: "WhatsApp is connecting..." });
-    }
+// app.get("/connect", async (req, res) => {
+//   try {
+//     if (!getSock()) {
+//       await connectToWhatsApp();
+//       return res.json({ message: "WhatsApp is connecting..." });
+//     }
 
-    return res.json({ message: "WhatsApp already connected." });
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
-  }
-});
+//     return res.json({ message: "WhatsApp already connected." });
+//   } catch (err) {
+//     return res.status(500).json({ error: err.message });
+//   }
+// });
 
 // Root endpoint
 app.get("/", (req, res) => {

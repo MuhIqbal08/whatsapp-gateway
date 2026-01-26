@@ -10,14 +10,10 @@ export const generateToken = (user) => {
       email: user.email,
     },
     SECRET,
-    { expiresIn: "1d" }
+    { expiresIn: "15m" }
   );
 };
 
 export const verifyToken = (token) => {
-  try {
-    return jwt.verify(token, SECRET);
-  } catch {
-    return null;
-  }
+  return jwt.verify(token, SECRET);
 };

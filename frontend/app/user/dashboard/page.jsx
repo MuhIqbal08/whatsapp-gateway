@@ -1,10 +1,7 @@
-"use client";
 
-import {
-  Users,
-  MessageSquareMore,
-  ChartNoAxesColumn,
-} from "lucide-react";
+"use client"
+
+import { Users, MessageSquareMore, ChartNoAxesColumn } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import Chart from "chart.js/auto";
 import DashboardChart from "@/components/admin/Chart";
@@ -143,7 +140,7 @@ const UserDashboard = () => {
     });
 
     // Devices Chart
-     // Devices Chart (Pie Chart untuk Status)
+    // Devices Chart (Pie Chart untuk Status)
     statusMessageChartInstance.current = new Chart(statusMessageCtx, {
       type: "pie",
       data: {
@@ -155,7 +152,7 @@ const UserDashboard = () => {
             backgroundColor: [
               "rgba(16, 185, 129, 0.8)", // Success - emerald
               "rgba(245, 158, 11, 0.8)", // Pending - amber
-              "rgba(239, 68, 68, 0.8)",  // Failed - red
+              "rgba(239, 68, 68, 0.8)", // Failed - red
             ],
             borderColor: [
               "rgb(16, 185, 129)",
@@ -185,7 +182,7 @@ const UserDashboard = () => {
             },
             callbacks: {
               label: function (context) {
-                const label = context.label || '';
+                const label = context.label || "";
                 const value = context.parsed || 0;
                 const total = context.dataset.data.reduce((a, b) => a + b, 0);
                 const percentage = ((value / total) * 100).toFixed(1);
@@ -214,97 +211,179 @@ const UserDashboard = () => {
   const avgDevices = Math.round(totalDevices / 12);
 
   return (
-    <>
+    <div className="space-y-6">
       {/* Charts */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 ">
-            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">
-                    Total Messages
-                  </p>
-                  <p className="text-2xl font-bold text-emerald-600">
-                    {totalMessages.toLocaleString()}
-                  </p>
-                </div>
-                <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
-                  <MessageSquareMore className="w-6 h-6 text-emerald-600" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600 mb-1">Total Messages</p>
+              <p className="text-2xl font-bold text-emerald-600">
+                {totalMessages.toLocaleString()}
+              </p>
+            </div>
+            <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
+              <MessageSquareMore className="w-6 h-6 text-emerald-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600 mb-1">Avg. Messages/Month</p>
+              <p className="text-2xl font-bold text-emerald-600">
+                {avgMessages.toLocaleString()}
+              </p>
+            </div>
+            <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
+              <ChartNoAxesColumn className="w-6 h-6 text-emerald-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600 mb-1">Total Devices</p>
+              <p className="text-2xl font-bold text-cyan-600">{totalDevices}</p>
+            </div>
+            <div className="w-12 h-12 bg-cyan-100 rounded-lg flex items-center justify-center">
+              <svg
+                className="w-6 h-6 text-cyan-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600 mb-1">Avg. Devices/Month</p>
+              <p className="text-2xl font-bold text-cyan-600">{avgDevices}</p>
+            </div>
+            <div className="w-12 h-12 bg-cyan-100 rounded-lg flex items-center justify-center">
+              <svg
+                className="w-6 h-6 text-cyan-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="">
+        <div className="bg-linear-to-br from-white to-gray-50 rounded-xl shadow-sm hover:shadow-md transition-shadow p-6   border border-gray-200">
+          <div className="space-y-3">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-bold bg-linear-to-r from-cyan-600 to-emerald-600 bg-clip-text text-transparent">
+                  Daily Usage
+                </h3>
+                <p className="text-sm text-gray-500 mt-1">
+                  Track your daily progress
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-xl font-bold text-gray-800">45%</p>
+                <p className="text-xs text-gray-500">of limit used</p>
+              </div>
+            </div>
+
+            {/* Progress Bar Container */}
+            <div className="relative">
+              {/* Background track */}
+              <div className="w-full h-6 bg-gray-200 rounded-full overflow-hidden shadow-inner">
+                {/* Animated gradient bar */}
+                <div
+                  className="h-full bg-linear-to-r from-cyan-500 via-emerald-500 to-cyan-500 bg-[length:200%_100%] animate-gradient rounded-full flex items-center justify-end pr-3 transition-all duration-1000 ease-out relative overflow-hidden"
+                  style={{ width: "45%" }}
+                >
+                  {/* Shine effect */}
+                  <div className="absolute inset-0 bg-linear-to-r from-transparent via-white to-transparent opacity-30 animate-shine" />
+
+                  {/* Percentage text */}
+                  <span className="text-xs font-bold text-white drop-shadow-lg relative z-10">
+                    45%
+                  </span>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Avg. Messages/Month</p>
-                  <p className="text-2xl font-bold text-emerald-600">
-                    {avgMessages.toLocaleString()}
-                  </p>
-                </div>
-                <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
-                  <ChartNoAxesColumn className="w-6 h-6 text-emerald-600" />
-                </div>
+            {/* Stats */}
+            <div className="grid grid-cols-3 gap-4 pt-4">
+              <div className="text-center p-3 bg-linear-to-br bg-cyan-200 rounded-lg">
+                <p className="text-xs text-gray-600 mb-1">Used</p>
+                <p className="text-lg font-bold text-cyan-700">450</p>
               </div>
-            </div>
-
-            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Total Devices</p>
-                  <p className="text-2xl font-bold text-cyan-600">
-                    {totalDevices}
-                  </p>
-                </div>
-                <div className="w-12 h-12 bg-cyan-100 rounded-lg flex items-center justify-center">
-                  <svg
-                    className="w-6 h-6 text-cyan-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"
-                    />
-                  </svg>
-                </div>
+              <div className="text-center p-3 bg-linear-to-br bg-emerald-200 rounded-lg">
+                <p className="text-xs text-gray-600 mb-1">Remaining</p>
+                <p className="text-lg font-bold text-emerald-700">550</p>
               </div>
-            </div>
-
-            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">
-                    Avg. Devices/Month
-                  </p>
-                  <p className="text-2xl font-bold text-cyan-600">
-                    {avgDevices}
-                  </p>
-                </div>
-                <div className="w-12 h-12 bg-cyan-100 rounded-lg flex items-center justify-center">
-                  <svg
-                    className="w-6 h-6 text-cyan-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-                    />
-                  </svg>
-                </div>
+              <div className="text-center p-3 bg-linear-to-br from-gray-50 to-gray-100 rounded-lg">
+                <p className="text-xs text-gray-600 mb-1">Total</p>
+                <p className="text-lg font-bold text-gray-700">1000</p>
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Charts */}
-          <DashboardChart messagesChartRef={messagesChartRef} devicesChartRef={devicesChartRef} />
-    </>
+        <style jsx>{`
+          @keyframes gradient {
+            0%,
+            100% {
+              background-position: 0% 50%;
+            }
+            50% {
+              background-position: 100% 50%;
+            }
+          }
+
+          @keyframes shine {
+            0% {
+              transform: translateX(-100%) skewX(-15deg);
+            }
+            100% {
+              transform: translateX(200%) skewX(-15deg);
+            }
+          }
+
+          .animate-gradient {
+            animation: gradient 3s ease infinite;
+          }
+
+          .animate-shine {
+            animation: shine 3s ease-in-out infinite;
+          }
+        `}</style>
+      </div>
+
+      {/* Charts */}
+      <DashboardChart
+        messagesChartRef={messagesChartRef}
+        devicesChartRef={devicesChartRef}
+      />
+    </div>
   );
 };
 

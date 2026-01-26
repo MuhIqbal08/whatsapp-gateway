@@ -13,10 +13,14 @@ export default (sequelize, DataTypes) => {
         unique: true,
         allowNull: false,
       },
+      emailVerifiedAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
       phoneNumber: {
         type: DataTypes.STRING,
         unique: true,
-        allowNull: false,
+        allowNull: true,
       },
       status: {
         type: DataTypes.STRING,
@@ -26,8 +30,22 @@ export default (sequelize, DataTypes) => {
         type: DataTypes.UUID,
         allowNull: false,
       },
-      limit: DataTypes.INTEGER,
-      password: DataTypes.STRING,
+      dailyLimit: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+      },
+      usedToday: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+      },
+      lastResetDate: {
+        type: DataTypes.DATE
+      },
+      image: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      // password: DataTypes.STRING,
       createdAt: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
@@ -48,6 +66,11 @@ export default (sequelize, DataTypes) => {
       foreignKey: "userId",
       as: "whatsappMessages",
     });
+    User.hasMany(models.ApiKeys, {
+      foreignKey: "userId",
+      as: "apiKeys",
+    });
+    User.hasMany(models.UserAuth, { foreignKey: "userId", as: "userAuths" });
   };
 
   return User;

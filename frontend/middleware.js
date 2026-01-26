@@ -1,32 +1,45 @@
-import { jwtDecode } from 'jwt-decode'
-import { redirect } from 'next/dist/server/api-utils'
-import { NextResponse } from 'next/server'
+import { NextResponse } from "next/server";
 
-export const middleware = (request) => {
-  const tokenCookie = request.cookies.get('token')
-  const token = tokenCookie?.value
-  const pathName = request.nextUrl.pathname
+export function middleware(request) {
+  const token = request.cookies.get("access_token")?.value;
+  const pathname = request.nextUrl.pathname;
 
-  if (!token) return NextResponse.redirect(new URL('/login', request.url))
+  // ⛔ allow public routes
+  if (
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/register") ||
+    pathname.startsWith("/api")
+  ) {
+    return NextResponse.next();
+  }
 
-    let decode;
-    try {
-        decode = jwtDecode(token)
-    } catch (error) {
-        return NextResponse.redirect(new URL('/login', request.url))
+  // ⛔ protect user & admin routes
+  if (!token && (pathname.startsWith("/user") || pathname.startsWith("/admin"))) {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  // ✅ OPTIONAL: role check (SAFE VERSION)
+  try {
+    const payload = JSON.parse(
+      Buffer.from(token.split(".")[1], "base64").toString()
+    );
+
+    const role = payload?.role;
+
+    if (role === "admin" && pathname.startsWith("/user")) {
+      return NextResponse.redirect(new URL("/admin/dashboard", request.url));
     }
 
-    const role = decode?.role
+    if (role === "user" && pathname.startsWith("/admin")) {
+      return NextResponse.redirect(new URL("/user/dashboard", request.url));
+    }
+  } catch {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
 
-    if(role === 'admin' && pathName.startsWith('/user')) return NextResponse.redirect(new URL('/admin/dashboard', request.url))
-    if(role === 'user' && pathName.startsWith('/admin')) return NextResponse.redirect(new URL('/user/dashboard', request.url))
-
-    return NextResponse.next()
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: [
-    '/admin/:path*',
-    '/user/:path*',
-  ]
-}
+  matcher: ["/user/:path*", "/admin/:path*"],
+};
