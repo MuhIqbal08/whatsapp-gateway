@@ -1,31 +1,50 @@
-"use client"
-import api from '@/lib/axios';
-import React from 'react'
+"use client";
+import api from "@/lib/axios";
+import React from "react";
+import { Bounce, Slide, toast } from "react-toastify";
 
-const ModalUserDevice = ({closeModal}) => {
-    const [name, setName] = React.useState('');
-    const [phoneNumber, setPhoneNumber] = React.useState('');
+const ModalUserDevice = ({ closeModal, onUpdate }) => {
+  const [name, setName] = React.useState("");
+  const [phoneNumber, setPhoneNumber] = React.useState("");
 
-    const submitHandler = async(e) => {
-        e.preventDefault();
-        try {
-            await api.post('/whatsapp/device', {name, phoneNumber})
-            alert('Device Berhasil Ditambahkan!')
-            closeModal()
-        } catch (error) {
-            console.error(error)
-        }
+  const submitHandler = async (e) => {
+    e.preventDefault();
+    try {
+      await api.post("/whatsapp/device", { name, phoneNumber });
+      toast("Device Berhasil Ditambahkan!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: false,
+        progress: undefined,
+        theme: "dark",
+        transition: Slide,
+      });
+      closeModal();
+      onUpdate();
+    } catch (error) {
+      console.error(error);
     }
+  };
   return (
     <>
+      {/* Backdrop/Overlay dengan blur effect */}
+      <div
+        className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40"
+        onClick={closeModal}
+      ></div>
+
+      {/* Modal */}
       <div
         id="crud-modal"
-        tabindex="-1"
+        tabIndex="-1"
         aria-hidden="true"
-        className="overflow-y-auto overflow-x-hidden fixed top-1/2 left-1/2 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
+        className="fixed inset-0 z-50 flex items-center justify-center p-4"
       >
-        <div className="relative p-4 w-full max-w-md max-h-full">
-          <div className="relative bg-white rounded-lg shadow-sm dark:bg-gray-700">
+        <div className="relative w-full max-w-md">
+          <div className="relative bg-white rounded-lg shadow-lg dark:bg-gray-700">
             <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                 Create New Device
@@ -58,7 +77,7 @@ const ModalUserDevice = ({closeModal}) => {
               <div className="grid gap-4 mb-4 grid-cols-2">
                 <div className="col-span-2">
                   <label
-                    for="name"
+                    htmlFor="name"
                     className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                   >
                     Name
@@ -69,31 +88,31 @@ const ModalUserDevice = ({closeModal}) => {
                     id="name"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                     placeholder="Type Device name"
-                    required=""
+                    required
                     onChange={(e) => setName(e.target.value)}
                   />
                 </div>
                 <div className="col-span-2">
                   <label
-                    for="phoneNumber"
+                    htmlFor="phoneNumber"
                     className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                   >
                     Phone Number
                   </label>
                   <input
-                    type="string"
+                    type="text"
                     name="phoneNumber"
                     id="phoneNumber"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                    placeholder="phoneNumber"
+                    placeholder="Phone Number"
                     onChange={(e) => setPhoneNumber(e.target.value)}
-                    required=""
+                    required
                   />
                 </div>
               </div>
               <button
                 type="submit"
-                className="text-white inline-flex items-center w-full justify-center bg-blue-700 hover:bg-blue-800  font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                className="text-white inline-flex items-center w-full justify-center bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
               >
                 <svg
                   className="me-1 -ms-1 w-5 h-5"
@@ -102,9 +121,9 @@ const ModalUserDevice = ({closeModal}) => {
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path
-                    fill-rule="evenodd"
+                    fillRule="evenodd"
                     d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                    clip-rule="evenodd"
+                    clipRule="evenodd"
                   ></path>
                 </svg>
                 Add new Device
@@ -115,6 +134,6 @@ const ModalUserDevice = ({closeModal}) => {
       </div>
     </>
   );
-}
+};
 
-export default ModalUserDevice
+export default ModalUserDevice;

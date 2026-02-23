@@ -64,6 +64,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true
       },
+      refreshToken: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
       createdAt: Sequelize.DATE,
       updatedAt: Sequelize.DATE,
     });

@@ -2,6 +2,7 @@ import makeWASocket, {
   Browsers,
   DisconnectReason,
   useMultiFileAuthState,
+  fetchLatestBaileysVersion,
 } from "@whiskeysockets/baileys";
 import { Boom } from "@hapi/boom";
 import fs from "fs";
@@ -17,105 +18,81 @@ export function setIo(ioServer) {
   io = ioServer;
 }
 
-const connecting = new Map();
-
 export const connectToWhatsAppWithId = async (deviceId) => {
-  const existingSock = sockets.get(deviceId);
-
-  if (existingSock?.user) {
-    return existingSock;
+  if (sockets.has(deviceId)) {
+    const existing = sockets.get(deviceId);
+    if (existing?.user) return existing;
   }
 
-  sockets.delete(deviceId);
+  const device = await WhatsAppDevice.findByPk(deviceId);
+  if (!device) throw new Error("Device not found");
 
-  if (connecting.has(deviceId)) {
-    return connecting.get(deviceId);
-  }
+  const sessionPath = path.join("sessions", deviceId.toString());
+  fs.mkdirSync(sessionPath, { recursive: true });
 
-  const connectPromise = (async () => {
-    const device = await WhatsAppDevice.findByPk(deviceId);
-    if (!device) throw new Error("Device not found");
+  const { state, saveCreds } = await useMultiFileAuthState(sessionPath);
+  const { version } = await fetchLatestBaileysVersion();
 
-    const sessionPath = path.join("sessions", deviceId.toString());
-    fs.mkdirSync(sessionPath, { recursive: true });
+  const sock = makeWASocket({
+    version,
+    auth: state,
+    browser: Browsers.windows("Chrome"),
+    generateHighQualityLinkPreview: true,
+    keepAliveIntervalMs: 10000,
+    markOnlineOnConnect: true,
+    syncFullHistory: false,
+  });
 
-    const { state, saveCreds } = await useMultiFileAuthState(sessionPath);
+  sockets.set(deviceId, sock);
 
-    const sock = makeWASocket({
-      auth: state,
-      browser: Browsers.windows("Chrome"),
-      generateHighQualityLinkPreview: true,
-    });
+  sock.ev.on("creds.update", saveCreds);
 
-    sockets.set(deviceId, sock);
+  sock.ev.on("connection.update", async (update) => {
+    const { qr, connection, lastDisconnect } = update;
 
-    sock.ev.on("creds.update", saveCreds);
+    if (qr) {
+      io?.emit(`qr-${deviceId}`, { qr });
+    }
 
-    sock.ev.on("connection.update", async (update) => {
-      const { qr, connection, lastDisconnect } = update;
+    if (connection === "open") {
+      console.log("✅ WhatsApp Connected:", deviceId);
+      await device.update({ isActive: true });
+      io?.emit(`qr-${deviceId}`, { connected: true, qr: null });
+    }
 
-      io?.emit(`qr-${deviceId}`, { qr: qr || null });
+    if (connection === "close") {
+      console.log("❌ WhatsApp Closed:", deviceId);
 
-      if (connection === "open") {
-        await device.update({ isActive: true });
-        io?.emit(`qr-${deviceId}`, { connected: true, qr: null });
+      sockets.delete(deviceId);
+
+      const shouldReconnect =
+        lastDisconnect?.error instanceof Boom &&
+        lastDisconnect.error.output.statusCode !==
+          DisconnectReason.loggedOut;
+
+      if (shouldReconnect) {
+        console.log("🔄 Reconnecting:", deviceId);
+        setTimeout(() => connectToWhatsAppWithId(deviceId), 2000);
+      } else {
+        await device.update({ isActive: false });
       }
+    }
+  });
 
-      if (connection === "close") {
-        sockets.delete(deviceId);
-        connecting.delete(deviceId);
-
-        const shouldReconnect =
-          lastDisconnect?.error instanceof Boom &&
-          lastDisconnect.error.output.statusCode !== DisconnectReason.loggedOut;
-
-        if (shouldReconnect) {
-          connectToWhatsAppWithId(deviceId);
-        } else {
-          await device.update({ isActive: false });
-        }
-      }
-    });
-
-    return sock;
-  })();
-
-  connecting.set(deviceId, connectPromise);
-
-  try {
-    return await connectPromise;
-  } finally {
-    connecting.delete(deviceId);
-  }
+  return sock;
 };
 
-export const ensureConnected = async (deviceId, timeoutMs = 20000) => {
-  sockets.delete(deviceId);
+export const ensureConnected = async (deviceId) => {
+  let sock = sockets.get(deviceId);
 
-  const sock = await connectToWhatsAppWithId(deviceId);
+  if (!sock || sock.ws.readyState !== 1) {
+    console.log("⚡ Starting fresh connection...");
+    sock = await connectToWhatsAppWithId(deviceId);
 
-  return new Promise((resolve, reject) => {
-    const timeout = setTimeout(() => {
-      sock.ev.off("connection.update", onUpdate);
-      reject(new Error("Connection timeout"));
-    }, timeoutMs);
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+  }
 
-    const onUpdate = (update) => {
-      if (update.connection === "open") {
-        clearTimeout(timeout);
-        sock.ev.off("connection.update", onUpdate);
-        resolve(sock);
-      }
-
-      if (update.connection === "close") {
-        clearTimeout(timeout);
-        sock.ev.off("connection.update", onUpdate);
-        reject(new Error("Connection Closed"));
-      }
-    };
-
-    sock.ev.on("connection.update", onUpdate);
-  });
+  return sock;
 };
 
 export const getSock = (deviceId) => {

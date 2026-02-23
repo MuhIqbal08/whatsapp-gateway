@@ -107,7 +107,7 @@ export const sendMessage = async (req, res) => {
         });
       }
 
-      await delay(10_000);
+      await delay(1000);
     }
 
     return res.json({

@@ -5,48 +5,60 @@ import crypto from "crypto";
 const { ApiKey } = db;
 
 export const createApiKey = async (req, res) => {
-  const userId = req.user.id;
-  const { name } = req.body;
-
-  const plainKey = generateApiKey();
-  const hash = crypto.createHash("sha256").update(plainKey).digest("hex");
-
   try {
+    const user = req.user;
+
+    // Optional: batasi 1 API key per user
+    const existing = await ApiKey.findOne({
+      where: { user_id: user.id, isActive: true },
+    });
+
+    if (existing) {
+      return res.status(400).json({
+        error: "API key already exists",
+      });
+    }
+
+    const plainKey = generateApiKey();
+    const hash = crypto.createHash("sha256").update(plainKey).digest("hex");
+
     await ApiKey.create({
-      user_id: userId,
-      name: name || "Default Key",
+      user_id: user.id,
+      name: `${user.email} API Key`,
       apiKeyHash: hash,
       isActive: true,
     });
-    res.json({
-      apiKey: plainKey,
+
+    return res.json({
+      apiKey: plainKey, // ⚠️ HANYA SEKALI
       message: "Save this key, it will not be shown again.",
     });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to generate API key" });
   }
 };
+
 
 export const getApiKey = async (req, res) => {
-  const { userId } = req.params.id;
   try {
-    const apiKey = await ApiKey.find({
-      where: {
-        userId,
-        isActive: true,
-      },
+    const userId = req.user.id;
+
+    const apiKey = await ApiKey.findOne({
+      where: { user_id: userId, isActive: true },
+      attributes: ["id", "name", "createdAt", "isActive"],
     });
 
-    res.send(200).json({
+    res.json({
       apiKey,
-      message: "Api Key Get",
+      message: "API Key fetched",
     });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch API key" });
   }
 };
+
 
 export const revokeApiKey = async (req, res) => {
   const { id } = req.params;

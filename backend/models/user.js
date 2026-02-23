@@ -46,6 +46,10 @@ export default (sequelize, DataTypes) => {
         allowNull: true
       },
       // password: DataTypes.STRING,
+      refreshToken: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
       createdAt: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,

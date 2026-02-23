@@ -1,14 +1,25 @@
 import bcrypt from "bcrypt";
 import db from "../models/index.js";
-import { generateToken } from "../utils/token.js";
+import { generateRefreshToken, generateToken } from "../utils/token.js";
 import { OAuth2Client } from "google-auth-library";
+import jwt from "jsonwebtoken";
 
-const { User, Role, UserAuth } = db;
+const { User, Role, UserAuth, sequelize } = db;
+
+// const REFRESH_SECRET = process.env.JWT_SECRET_REFRESH;
+// const SECRET = process.env.JWT_SECRET;
 
 export const register = async (req, res) => {
   const t = await sequelize.transaction();
   try {
-    const { name, email, phoneNumber, password, confirmPassword, image=null } = req.body;
+    const {
+      name,
+      email,
+      phoneNumber,
+      password,
+      confirmPassword,
+      image = null,
+    } = req.body;
 
     if (!name || !email || !phoneNumber || !password || !confirmPassword)
       return res.status(400).json({ error: "All fields are required" });
@@ -83,29 +94,39 @@ export const login = async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    const valid = await bcrypt.compare(password, user.password);
+    const auth = await UserAuth.findOne({
+      where: { userId: user.id, provider: "manual" },
+    });
+
+    const valid = await bcrypt.compare(password, auth.password);
     if (!valid) {
       return res.status(400).json({ error: "Invalid password" });
     }
 
-    const token = generateToken(user);
+    const accessToken = generateToken(user);
+    const refreshToken = generateRefreshToken(user);
 
-    res.cookie("access_token", token, {
+    user.refreshToken = refreshToken;
+    await user.save();
+
+    // res.cookie("access_token", accessToken, {
+    //   httpOnly: true,
+    //   sameSite: "lax",
+    //   secure: false,
+    //   maxAge: 15 * 60 * 1000,
+    //   path: "/",
+    // });
+
+    // ✅ REFRESH COOKIE
+    res.cookie("refresh_token", refreshToken, {
       httpOnly: true,
-      secure: false,
       sameSite: "lax",
-      maxAge: 15 * 60 * 1000,
+      secure: false,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
       path: "/",
     });
 
-    res.json({
-      success: true,
-      user: {
-        id: user.id,
-        email: user.email,
-        role: user.role.name,
-      },
-    });
+    res.json({ accessToken });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Login failed" });
@@ -141,6 +162,7 @@ export const googleLogin = async (req, res) => {
         roleId: userRole.id,
         dailyLimit: 1000,
         usedToday: 0,
+        // refreshToken,
         lastResetDate: new Date().toISOString().slice(0, 10),
       });
 
@@ -151,25 +173,61 @@ export const googleLogin = async (req, res) => {
       });
     }
 
-    const jwtToken = generateToken(user);
+    const accessToken = generateToken(user);
+    const refreshToken = generateRefreshToken(user);
 
-    res.cookie("access_token", jwtToken, {
+    user.refreshToken = refreshToken;
+    await user.save();
+
+    // res.cookie("access_token", accessToken, {
+    //   httpOnly: true,
+    //   sameSite: "lax",
+    //   secure: false,
+    //   maxAge: 15 * 60 * 1000,
+    //   path: "/",
+    // });
+
+    // ✅ REFRESH COOKIE
+    res.cookie("refresh_token", refreshToken, {
       httpOnly: true,
-      secure: false,
       sameSite: "lax",
-      maxAge: 15 * 60 * 1000,
+      secure: false,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
       path: "/",
     });
 
-    res.json({
-      success: true,
-      user
-    });
+    res.json({ accessToken });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
   }
 };
+
+export const refreshToken = async (req, res) => {
+  const token = req.cookies.refresh_token;
+  console.log("Cookie token:", token);
+
+  if (!token) return res.sendStatus(401);
+
+  try {
+    const payload = jwt.verify(token, process.env.JWT_SECRET_REFRESH);
+    console.log("Payload:", payload);
+
+    const user = await User.findByPk(payload.id);
+    console.log("User DB token:", user?.refreshToken);
+
+    if (!user || user.refreshToken !== token)
+      return res.sendStatus(401);
+
+    const newAccessToken = generateToken(user);
+    res.json({ accessToken: newAccessToken });
+
+  } catch (err) {
+    console.log("JWT ERROR:", err.message);
+    return res.sendStatus(401);
+  }
+};
+
 
 export const setPhoneNumber = async (req, res) => {
   try {
@@ -184,16 +242,49 @@ export const setPhoneNumber = async (req, res) => {
   }
 };
 
-export const logout = async (req, res) => {
-  res.clearCookie("access_token", {
-    httpOnly: true,
-    secure: false,
-    sameSite: "lax",
-  });
+// export const logout = async (req, res) => {
+//   res.clearCookie("access_token", {
+//     httpOnly: true,
+//     secure: false,
+//     sameSite: "lax",
+//   });
 
-  res.json({ success: true, message: "Logout successful" });
+//   res.json({ success: true, message: "Logout successful" });
+// };
+
+// export const logout = async (req, res) => {
+//   const token = req.cookies.refresh_token;
+
+//   if (token) {
+//     await User.update(
+//       { refreshToken: null },
+//       { where: { refreshToken: token } },
+//     );
+//   }
+
+//   res.clearCookie("refresh_token", {
+//     path: "/",
+//   });
+
+//   return res.sendStatus(200);
+// };
+
+export const logout = async (req, res) => {
+  try {
+    res.clearCookie("refresh_token", {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: false,
+    });
+
+    return res.status(200).json({ message: "Logged out" });
+  } catch (error) {
+    return res.status(500).json({ message: "Logout failed" });
+  }
 };
 
-export const getMe = async (req, res) => {
+
+export const getMe = (req, res) => {
   res.json({ user: req.user });
+  console.log("user me", req.user);
 };

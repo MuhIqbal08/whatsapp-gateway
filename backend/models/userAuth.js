@@ -35,10 +35,10 @@ export default (sequelize, DataTypes) => {
       tableName: "user_auths",
       validate: {
         manualMustHavePassword() {
-          if (this.provider === "manual" && !this.password_hash) {
+          if (this.provider === "manual" && !this.password) {
             throw new Error("Manual login must have password");
           }
-          if (this.provider !== "manual" && this.password_hash) {
+          if (this.provider !== "manual" && this.password) {
             throw new Error("Only manual provider can have password");
           }
         },
