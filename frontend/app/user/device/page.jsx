@@ -3,6 +3,7 @@ import ModalScanQr from "@/components/user/ModalScanQr";
 import ModalUserDevice from "@/components/user/ModalUserDevice";
 import api from "@/lib/axios";
 import React, { useEffect } from "react";
+import { Slide, toast } from "react-toastify";
 
 const UserDevice = () => {
   const [showModal, setShowModal] = React.useState(false);
@@ -30,7 +31,17 @@ const UserDevice = () => {
 
   const handleDelete = async (id) => {
     await api.delete(`/whatsapp/device/${id}`);
-    console.log("deleted succesfully!")
+    toast("Device Berhasil Dihapus!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: false,
+        progress: undefined,
+        theme: "dark",
+        transition: Slide,
+      });
     await getDevice();
   };
 
@@ -38,7 +49,7 @@ const UserDevice = () => {
     <div className="p-3">
       <button
         onClick={() => setShowModal(true)}
-        className="mb-4 px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300"
+        className="mb-4 px-4 py-2 text-sm font-medium text-white bg-cyan-700 rounded-lg hover:bg-cyan-800 focus:ring-1 focus:outline-none focus:ring-cyan-300"
       >
         Create Device
       </button>
@@ -99,10 +110,11 @@ const UserDevice = () => {
                     {device.phoneNumber}
                   </td>
                   <td className="px-6 py-2 text-gray-700">
-                    {device.isActive ? "Connected" : "Disconnected"}
+                    {device.isActive ? 
+                    <span className="text-emerald-600">Connected</span> : <span className="text-rose-600">Disconnected</span>}
                   </td>
                   <td className="px-6 py-2 space-x-1">
-                    <button className="cursor-pointer px-3 py-2 text-xs font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300">
+                    <button className="cursor-pointer px-3 py-2 text-xs font-medium text-white bg-cyan-700 rounded-lg hover:bg-cyan-800 focus:ring-4 focus:outline-none focus:ring-cyan-300">
                       Edit
                     </button>
                     <button
@@ -114,12 +126,12 @@ const UserDevice = () => {
                         // redirect ke halaman QR dengan deviceId
                         window.location.href = `/user/device/qrcode?deviceId=${device.id}`;
                       }}
-                      className="cursor-pointer px-3 py-2 text-xs font-medium text-white bg-green-700 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300"
+                      className="cursor-pointer px-3 py-2 text-xs font-medium text-white bg-emerald-700 rounded-lg hover:bg-emerald-800 focus:ring-4 focus:outline-none focus:ring-green-300"
                     >
                       Connect
                     </button>
 
-                    <button onClick={() => handleDelete(device.id)} className="cursor-pointer px-3 py-2 text-xs font-medium text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300">
+                    <button onClick={() => handleDelete(device.id)} className="cursor-pointer px-3 py-2 text-xs font-medium text-white bg-rose-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300">
                       Delete
                     </button>
                   </td>

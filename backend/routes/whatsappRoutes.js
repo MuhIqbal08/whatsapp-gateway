@@ -34,7 +34,7 @@ router.get("/connect/:id", async (req, res) => {
 });
 
 router.post("/send", authMiddleware, authorize("send_message"), sendMessage);
-router.post("/send/group", authMiddleware, authorize("send_message"),  sendMessageGroup);
+router.post("/send/group", apiKeyMiddleware, authorize("send_message"),  sendMessageGroup);
 router.get('/participating/group/:deviceId', authMiddleware, authorize("send_message"), getAllParticipatingGroups);
 
 export default router;

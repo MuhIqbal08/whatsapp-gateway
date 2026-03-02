@@ -4,13 +4,49 @@
 import { Users, MessageSquareMore, ChartNoAxesColumn } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import Chart from "chart.js/auto";
-import DashboardChart from "@/components/admin/Chart";
+import DashboardChart from "@/components/user/Chart";
+import api from "@/lib/axios";
 
 const UserDashboard = () => {
   const messagesChartRef = useRef(null);
   const devicesChartRef = useRef(null);
   const messagesChartInstance = useRef(null);
   const statusMessageChartInstance = useRef(null);
+  // const [userCount, setUserCount] = useState(null);
+  const [deviceCount, setDeviceCount] = useState(null);
+  const [messageCount, setMessageCount] = useState(null);
+  const [messagesData, setMessagesData] = useState(Array(12).fill(0));
+  const [dailyLimit, setDailyLimit] = useState(null);
+  const [usedToday, setUsedToday] = useState(null);
+  const [messageSuccess, setMessageSuccess] = useState(null);
+  const [messagePending, setMessagePending] = useState(null);
+  const [messageFailed, setMessageFailed] = useState(null);
+  // const [name, setName] = useState(null);
+  // const [role, setRole] = useState(null);
+
+  useEffect(() => {
+  const getDashboard = async () => {
+    try {
+      const response = await api.get("user/dashboard");
+      console.log('dashboard', response.data);
+      // setUserCount(response.data.userCount);
+      setDeviceCount(response.data.devicesCount);
+      setMessagesData(response.data.messagesData || Array(12).fill(0));
+      setDailyLimit(response.data.dailyLimit);
+      setUsedToday(response.data.usedToday);
+      setMessageSuccess(response.data.status.success);
+      setMessagePending(response.data.status.pending);
+      setMessageFailed(response.data.status.failed);
+      // setName(response.data.user.name);
+      // setRole(response.data.user.role);
+      // setMessageCount(response.data.messageCount.count);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  getDashboard();
+}, []);
 
   // Data untuk 12 bulan
   const months = [
@@ -27,9 +63,9 @@ const UserDashboard = () => {
     "Nov",
     "Dec",
   ];
-  const messagesData = [
-    1200, 1900, 1500, 2200, 2800, 2400, 3100, 2900, 3400, 3800, 4200, 4500,
-  ];
+  // const messagesData = [
+  //   1200, 1900, 1500, 2200, 2800, 2400, 3100, 2900, 3400, 3800, 4200, 4500,
+  // ];
   const devicesData = [45, 52, 48, 61, 68, 65, 73, 70, 78, 82, 89, 95];
 
   useEffect(() => {
@@ -148,7 +184,7 @@ const UserDashboard = () => {
         datasets: [
           {
             label: "Message Status",
-            data: [3250, 450, 180], // Success, Pending, Failed
+            data: [messageSuccess, messagePending, messageFailed], // [success, pending, failed], 450, 180], // Success, Pending, Failed
             backgroundColor: [
               "rgba(16, 185, 129, 0.8)", // Success - emerald
               "rgba(245, 158, 11, 0.8)", // Pending - amber
@@ -202,18 +238,19 @@ const UserDashboard = () => {
         statusMessageChartInstance.current.destroy();
       }
     };
-  }, []);
+  }, [messagesData]);
 
   // Hitung total dan rata-rata
   const totalMessages = messagesData.reduce((a, b) => a + b, 0);
   const totalDevices = devicesData.reduce((a, b) => a + b, 0);
   const avgMessages = Math.round(totalMessages / 12);
   const avgDevices = Math.round(totalDevices / 12);
+  const dailyUsage = dailyLimit > 0 ? Math.round((usedToday / dailyLimit) * 100) : 0;
 
   return (
     <div className="space-y-6">
       {/* Charts */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between">
             <div>
@@ -246,7 +283,7 @@ const UserDashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600 mb-1">Total Devices</p>
-              <p className="text-2xl font-bold text-cyan-600">{totalDevices}</p>
+              <p className="text-2xl font-bold text-cyan-600">{deviceCount}</p>
             </div>
             <div className="w-12 h-12 bg-cyan-100 rounded-lg flex items-center justify-center">
               <svg
@@ -266,7 +303,7 @@ const UserDashboard = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
+        {/* <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600 mb-1">Avg. Devices/Month</p>
@@ -288,7 +325,7 @@ const UserDashboard = () => {
               </svg>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
 
       <div className="">
@@ -305,7 +342,7 @@ const UserDashboard = () => {
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-xl font-bold text-gray-800">45%</p>
+                <p className="text-xl font-bold text-gray-800">{dailyUsage}</p>
                 <p className="text-xs text-gray-500">of limit used</p>
               </div>
             </div>
@@ -316,15 +353,15 @@ const UserDashboard = () => {
               <div className="w-full h-6 bg-gray-200 rounded-full overflow-hidden shadow-inner">
                 {/* Animated gradient bar */}
                 <div
-                  className="h-full bg-linear-to-r from-cyan-500 via-emerald-500 to-cyan-500 bg-[length:200%_100%] animate-gradient rounded-full flex items-center justify-end pr-3 transition-all duration-1000 ease-out relative overflow-hidden"
-                  style={{ width: "45%" }}
+                  className="h-full bg-linear-to-r from-cyan-500 via-emerald-500 to-cyan-500 bg-size-[200%_100%] animate-gradient rounded-full flex items-center justify-end pr-3 transition-all duration-1000 ease-out relative overflow-hidden"
+                  style={{ width:  `${dailyUsage}%` }}
                 >
                   {/* Shine effect */}
                   <div className="absolute inset-0 bg-linear-to-r from-transparent via-white to-transparent opacity-30 animate-shine" />
 
                   {/* Percentage text */}
                   <span className="text-xs font-bold text-white drop-shadow-lg relative z-10">
-                    45%
+                    {dailyUsage}%
                   </span>
                 </div>
               </div>
@@ -334,15 +371,15 @@ const UserDashboard = () => {
             <div className="grid grid-cols-3 gap-4 pt-4">
               <div className="text-center p-3 bg-linear-to-br bg-cyan-200 rounded-lg">
                 <p className="text-xs text-gray-600 mb-1">Used</p>
-                <p className="text-lg font-bold text-cyan-700">450</p>
+                <p className="text-lg font-bold text-cyan-700">{usedToday}</p>
               </div>
               <div className="text-center p-3 bg-linear-to-br bg-emerald-200 rounded-lg">
                 <p className="text-xs text-gray-600 mb-1">Remaining</p>
-                <p className="text-lg font-bold text-emerald-700">550</p>
+                <p className="text-lg font-bold text-emerald-700">{dailyLimit - usedToday}</p>
               </div>
               <div className="text-center p-3 bg-linear-to-br from-gray-50 to-gray-100 rounded-lg">
                 <p className="text-xs text-gray-600 mb-1">Total</p>
-                <p className="text-lg font-bold text-gray-700">1000</p>
+                <p className="text-lg font-bold text-gray-700">{dailyLimit}</p>
               </div>
             </div>
           </div>

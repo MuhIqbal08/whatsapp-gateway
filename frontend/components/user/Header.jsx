@@ -30,6 +30,8 @@ const Header = ({
   const [scrolled, setScrolled] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [role, setRole] = useState("");
 
   const profileRef = useRef(null);
 
@@ -40,6 +42,20 @@ const Header = ({
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const getUsers = async () => {
+      try {
+        const res = await api.get("user/id");
+        console.log('header', res.data)
+        setName(res.data.user.name);
+        setRole(res.data.role.name);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    getUsers();
   }, []);
 
   // Close profile dropdown when clicking outside
@@ -187,7 +203,7 @@ const Header = ({
           <div className="hidden sm:flex items-center gap-2">
             {/* <div className="
               w-9 h-9 rounded-xl
-              bg-gradient-to-br from-emerald-400 via-emerald-500 to-cyan-500
+              bg-linear-to-br from-emerald-400 via-emerald-500 to-cyan-500
               flex items-center justify-center
               font-bold text-sm text-white
               shadow-lg shadow-emerald-500/30
@@ -253,10 +269,10 @@ const Header = ({
             >
               <div className="hidden sm:block text-right">
                 <div className="text-sm font-semibold text-slate-900 dark:text-white leading-tight">
-                  John Doe
+                  {name}
                 </div>
-                <div className="text-xs text-slate-500 dark:text-slate-400 leading-tight">
-                  Administrator
+                <div className="text-xs text-slate-500 dark:text-slate-400 leading-tight capitalize">
+                  {role}
                 </div>
               </div>
 
@@ -264,7 +280,7 @@ const Header = ({
                 <div
                   className="
                   w-10 h-10 rounded-xl
-                  bg-gradient-to-br from-emerald-400 via-emerald-500 to-cyan-500
+                  bg-linear-to-br from-emerald-400 via-emerald-500 to-cyan-500
                   flex items-center justify-center
                   font-bold text-sm text-white
                   shadow-lg shadow-emerald-500/30
@@ -316,7 +332,7 @@ const Header = ({
               <div
                 className="
                 p-4 
-                bg-gradient-to-br from-emerald-50 to-cyan-50 
+                bg-linear-to-br from-emerald-50 to-cyan-50 
                 dark:from-slate-800/50 dark:to-slate-800/30
                 border-b border-slate-200/80 dark:border-slate-700/80
               "
@@ -325,7 +341,7 @@ const Header = ({
                   <div
                     className="
                     w-12 h-12 rounded-xl
-                    bg-gradient-to-br from-emerald-400 via-emerald-500 to-cyan-500
+                    bg-linear-to-br from-emerald-400 via-emerald-500 to-cyan-500
                     flex items-center justify-center
                     font-bold text-base text-white
                     shadow-lg shadow-emerald-500/30

@@ -218,7 +218,7 @@ const UserMessage = () => {
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-gradient-to-r from-emerald-600 to-cyan-600 text-white font-semibold py-2.5 rounded hover:opacity-90 disabled:opacity-60"
+        className="w-full bg-linear-to-r from-emerald-600 to-cyan-600 text-white font-semibold py-2.5 rounded hover:opacity-90 disabled:opacity-60"
       >
         {loading ? "Mengirim..." : "Kirim Pesan"}
       </button>

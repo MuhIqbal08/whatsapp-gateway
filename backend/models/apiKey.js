@@ -13,11 +13,11 @@ export default (sequelize, DataTypes) => {
       },
       name: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: false
       },
-      apiKeysHash: {
+      apiKeyHash: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: false
       },
       apiKeyHash: {
         type: DataTypes.STRING,

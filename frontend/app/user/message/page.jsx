@@ -340,7 +340,7 @@ const UserMessage = () => {
 
               <p className="text-xs text-gray-500 mb-4 flex items-start gap-1.5">
                 <svg
-                  className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0"
+                  className="w-4 h-4 text-blue-500 mt-0.5 shrink-0"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -396,7 +396,7 @@ const UserMessage = () => {
                       className="flex items-center justify-between bg-white border border-gray-200 rounded-lg px-3 py-2.5 hover:border-cyan-300 hover:bg-cyan-50/50 transition-all duration-200 group"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-100 to-blue-100 flex items-center justify-center text-cyan-700 font-bold text-xs">
+                        <div className="w-8 h-8 rounded-full bg-linear-to-br from-cyan-100 to-blue-100 flex items-center justify-center text-cyan-700 font-bold text-xs">
                           {index + 1}
                         </div>
                         <div>
@@ -467,7 +467,7 @@ const UserMessage = () => {
         {/* Submit Section */}
         <div className="">
           <div className="flex flex-col md:flex-row items-center gap-4">
-            <div className="flex-1 bg-gradient-to-r from-emerald-50 to-cyan-50 border border-emerald-200 rounded-lg px-5 py-2">
+            <div className="flex-1 bg-linear-to-r from-emerald-50 to-cyan-50 border border-emerald-200 rounded-lg px-5 py-2">
               <div className="flex items-center gap-3">
                 <svg
                   className="w-6 h-6 text-emerald-600"
@@ -496,7 +496,7 @@ const UserMessage = () => {
             <button
               type="submit"
               disabled={isSending || recipients.length === 0}
-              className="w-full md:w-auto px-8 py-3.5 bg-gradient-to-r from-emerald-600 to-cyan-600 text-white font-bold rounded-lg hover:from-emerald-700 hover:to-cyan-700 active:scale-[0.98] transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 group min-w-[200px]"
+              className="w-full md:w-auto px-8 py-3.5 bg-linear-to-r from-emerald-600 to-cyan-600 text-white font-bold rounded-lg hover:from-emerald-700 hover:to-cyan-700 active:scale-[0.98] transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 group min-w-[200px]"
             >
               {isSending ? (
                 <>
@@ -549,7 +549,7 @@ const UserMessage = () => {
             <div className="mt-4">
               <div className="bg-gray-200 rounded-full h-2.5 overflow-hidden">
                 <div
-                  className="bg-gradient-to-r from-emerald-500 to-cyan-500 h-full transition-all duration-500 ease-out"
+                  className="bg-linear-to-r from-emerald-500 to-cyan-500 h-full transition-all duration-500 ease-out"
                   style={{
                     width: `${
                       (sendProgress.current / sendProgress.total) * 100

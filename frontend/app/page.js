@@ -152,7 +152,7 @@ app.post('/webhook', (req, res) => {
               <a href="#features" className="hover:text-emerald-400 transition">Features</a>
               <a href="#docs" className="hover:text-emerald-400 transition">Docs</a>
               <a href="#pricing" className="hover:text-emerald-400 transition">Pricing</a>
-              <Link href="/register" className="bg-gradient-to-r from-emerald-500 to-cyan-500 px-6 py-2 rounded-full font-semibold hover:shadow-lg hover:shadow-emerald-500/50 transition-all">
+              <Link href="/register" className="bg-linear-to-r from-emerald-500 to-cyan-500 px-6 py-2 rounded-full font-semibold hover:shadow-lg hover:shadow-emerald-500/50 transition-all">
                 Get Started
               </Link>
             </div>
@@ -170,7 +170,7 @@ app.post('/webhook', (req, res) => {
               <a href="#features" className="block py-2 hover:text-emerald-400">Features</a>
               <a href="#docs" className="block py-2 hover:text-emerald-400">Docs</a>
               <a href="#pricing" className="block py-2 hover:text-emerald-400">Pricing</a>
-              <button className="w-full bg-gradient-to-r from-emerald-500 to-cyan-500 px-6 py-2 rounded-full font-semibold mt-2">
+              <button className="w-full bg-linear-to-r from-emerald-500 to-cyan-500 px-6 py-2 rounded-full font-semibold mt-2">
                 Get Started
               </button>
             </div>
@@ -189,7 +189,7 @@ app.post('/webhook', (req, res) => {
             
             <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight animate-fade-in-up delay-100">
               WhatsApp API Gateway
-              <span className="block bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent">
+              <span className="block bg-linear-to-r from-emerald-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent">
                 untuk Developer Modern
               </span>
             </h1>
@@ -199,7 +199,7 @@ app.post('/webhook', (req, res) => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up delay-300">
-              <button className="bg-gradient-to-r from-emerald-500 to-cyan-500 px-8 py-4 rounded-full font-semibold text-lg hover:shadow-2xl hover:shadow-emerald-500/50 transition-all flex items-center justify-center space-x-2">
+              <button className="bg-linear-to-r from-emerald-500 to-cyan-500 px-8 py-4 rounded-full font-semibold text-lg hover:shadow-2xl hover:shadow-emerald-500/50 transition-all flex items-center justify-center space-x-2">
                 <span>Start Free Trial</span>
                 <ArrowRight className="w-5 h-5" />
               </button>
@@ -232,8 +232,8 @@ app.post('/webhook', (req, res) => {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, i) => (
-              <div key={i} className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-8 hover:border-emerald-500/50 transition-all">
-                <div className="bg-gradient-to-br from-emerald-500 to-cyan-500 w-14 h-14 rounded-xl flex items-center justify-center mb-6">
+              <div key={i} className="bg-linear-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-8 hover:border-emerald-500/50 transition-all">
+                <div className="bg-linear-to-br from-emerald-500 to-cyan-500 w-14 h-14 rounded-xl flex items-center justify-center mb-6">
                   {feature.icon}
                 </div>
                 <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
@@ -289,7 +289,7 @@ app.post('/webhook', (req, res) => {
                 key={i}
                 className={`rounded-2xl p-8 ${
                   plan.popular
-                    ? 'bg-gradient-to-br from-emerald-500 to-cyan-500 transform scale-105 shadow-2xl'
+                    ? 'bg-linear-to-br from-emerald-500 to-cyan-500 transform scale-105 shadow-2xl'
                     : 'bg-slate-800 border border-slate-700'
                 }`}
               >
@@ -306,7 +306,7 @@ app.post('/webhook', (req, res) => {
                 <ul className="space-y-3 mb-8">
                   {plan.features.map((feature, j) => (
                     <li key={j} className="flex items-start space-x-3">
-                      <CheckCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                      <CheckCircle className="w-5 h-5 mt-0.5 shrink-0" />
                       <span>{feature}</span>
                     </li>
                   ))}
@@ -329,7 +329,7 @@ app.post('/webhook', (req, res) => {
       {/* CTA Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-3xl p-12">
+          <div className="bg-linear-to-r from-emerald-500 to-cyan-500 rounded-3xl p-12">
             <h2 className="text-4xl font-bold mb-4">Siap untuk Memulai?</h2>
             <p className="text-xl mb-8 opacity-90">
               Dapatkan akses API gratis dan kirim 1000 pesan pertama tanpa biaya

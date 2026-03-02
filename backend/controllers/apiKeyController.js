@@ -2,15 +2,14 @@ import db from "../models/index.js";
 import { generateApiKey } from "../utils/apiKey.js";
 import crypto from "crypto";
 
-const { ApiKey } = db;
+const { ApiKeys } = db;
 
 export const createApiKey = async (req, res) => {
   try {
     const user = req.user;
 
-    // Optional: batasi 1 API key per user
-    const existing = await ApiKey.findOne({
-      where: { user_id: user.id, isActive: true },
+    const existing = await ApiKeys.findOne({
+      where: { userId: user.id, isActive: true },
     });
 
     if (existing) {
@@ -22,15 +21,15 @@ export const createApiKey = async (req, res) => {
     const plainKey = generateApiKey();
     const hash = crypto.createHash("sha256").update(plainKey).digest("hex");
 
-    await ApiKey.create({
-      user_id: user.id,
+    await ApiKeys.create({
+      userId: user.id,
       name: `${user.email} API Key`,
       apiKeyHash: hash,
       isActive: true,
     });
 
     return res.json({
-      apiKey: plainKey, // ⚠️ HANYA SEKALI
+      apiKey: plainKey,
       message: "Save this key, it will not be shown again.",
     });
   } catch (err) {
@@ -39,14 +38,13 @@ export const createApiKey = async (req, res) => {
   }
 };
 
-
 export const getApiKey = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    const apiKey = await ApiKey.findOne({
-      where: { user_id: userId, isActive: true },
-      attributes: ["id", "name", "createdAt", "isActive"],
+    const apiKey = await ApiKeys.findOne({
+      where: { userId, isActive: true },
+      attributes: ["id", "name", "apiKeyHash", "createdAt", "isActive"],
     });
 
     res.json({
@@ -59,18 +57,18 @@ export const getApiKey = async (req, res) => {
   }
 };
 
-
 export const revokeApiKey = async (req, res) => {
   const { id } = req.params;
   const userId = req.user.id;
+
   try {
-    await ApiKey.update(
+    await ApiKeys.update(
+      { isActive: false },
       {
-        isActive: false,
-      },
-      {
-        where: id,
-        userId,
+        where: {
+          id,
+          userId,
+        },
       }
     );
 
@@ -89,10 +87,8 @@ export const rotateApiKey = async (req, res) => {
   const hash = crypto.createHash("sha256").update(newKey).digest("hex");
 
   try {
-    await ApiKey.update(
-      {
-        isActive: false,
-      },
+    await ApiKeys.update(
+      { isActive: false },
       {
         where: {
           id,
@@ -101,7 +97,7 @@ export const rotateApiKey = async (req, res) => {
       }
     );
 
-    await ApiKey.create({
+    await ApiKeys.create({
       userId,
       name: `Rotated Key ${userId}`,
       apiKeyHash: hash,

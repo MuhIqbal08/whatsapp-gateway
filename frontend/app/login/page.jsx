@@ -50,6 +50,10 @@ const LoginPage = () => {
         transition: Slide,
       });
 
+      if (me.data.user.roleId === "9318ff33-b08a-49c7-a210-6fa0acb044be") {
+        return router.push("/admin/dashboard");
+      }
+
       router.push("/user/dashboard");
     } catch (error) {
       toast.error(error.response?.data?.message || "Login gagal");

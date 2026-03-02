@@ -52,7 +52,7 @@ const UserLayoutClient = ({ children }) => {
     {
       id: "contacts",
       icon: Users,
-      label: "MessagesGrup",
+      label: "Messages Grup",
       active: pathname === "/user/group",
       url: "/user/group",
     },

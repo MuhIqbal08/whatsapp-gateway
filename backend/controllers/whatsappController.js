@@ -1,13 +1,11 @@
 import { success, error } from "../utils/response.js";
 import db from "../models/index.js";
 import { createDevice } from "../services/whatsappServices.js";
-import {
-  ensureConnected,
-} from "../whatsapp/connection.js";
+import { ensureConnected } from "../whatsapp/connection.js";
 
-const { WhatsAppDevice, WhatsAppMessage } = db;
+const { WhatsAppDevice, WhatsAppMessage, User } = db;
 
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const registerDevice = async (req, res) => {
   try {
@@ -36,13 +34,14 @@ export const getDevices = async (req, res) => {
 export const getMessageByStatus = async (req, res) => {
   try {
     const { status } = req.params;
-    const {rows: messages, count: messagesCount} = await WhatsAppMessage.findAndCountAll({where: {status}});
+    const { rows: messages, count: messagesCount } =
+      await WhatsAppMessage.findAndCountAll({ where: { status } });
     success(res, messages, messagesCount);
   } catch (error) {
     console.error(error);
     error(res, error.message);
   }
-}
+};
 
 export const sendMessage = async (req, res) => {
   let messageLogs = [];
@@ -52,13 +51,11 @@ export const sendMessage = async (req, res) => {
 
     if (!deviceId || !phoneNumber || !message) {
       return res.status(400).json({ message: "Missing required fields" });
-    } 
+    }
 
-    const numbers = Array.isArray(phoneNumber)
-      ? phoneNumber
-      : [phoneNumber];
+    const numbers = Array.isArray(phoneNumber) ? phoneNumber : [phoneNumber];
 
-    const cleanNumbers = numbers.map(n => {
+    const cleanNumbers = numbers.map((n) => {
       const clean = n.replace(/\D/g, "");
       if (clean.length < 10 || clean.length > 15) {
         throw new Error(`Invalid phone number: ${n}`);
@@ -99,7 +96,6 @@ export const sendMessage = async (req, res) => {
           waMessageId: result.key.id,
           notes: "Message sent",
         });
-
       } catch (sendErr) {
         await messageLog.update({
           status: "failed",
@@ -114,7 +110,6 @@ export const sendMessage = async (req, res) => {
       message: "Messages sent",
       total: messageLogs.length,
     });
-
   } catch (err) {
     console.error(err);
 
@@ -130,6 +125,10 @@ export const sendMessageGroup = async (req, res) => {
 
   try {
     const { deviceId, groupId, message } = req.body;
+
+    console.log("BODY:", req.body);
+    console.log("USER:", req.user);
+    console.log("API KEY:", req.apiKey);
 
     if (!deviceId || !groupId || !message) {
       return res.status(400).json({ message: "Missing required fields" });
@@ -161,7 +160,6 @@ export const sendMessageGroup = async (req, res) => {
       messageLogs.push(messageLog);
 
       try {
-        // ===== SEND MESSAGE =====
         const result = await sock.sendMessage(jid, { text: message });
 
         await messageLog.update({
@@ -169,7 +167,6 @@ export const sendMessageGroup = async (req, res) => {
           waMessageId: result.key.id,
           notes: "Message sent to group",
         });
-
       } catch (sendErr) {
         await messageLog.update({
           status: "failed",
@@ -177,15 +174,13 @@ export const sendMessageGroup = async (req, res) => {
         });
       }
 
-      // ===== DELAY 10 DETIK (ANTI SPAM) =====
-      await delay(10_000);
+      await delay(1000);
     }
 
     return res.json({
       message: "Messages sent",
       total: messageLogs.length,
     });
-
   } catch (err) {
     console.error(err);
     return res.status(500).json({
@@ -194,7 +189,6 @@ export const sendMessageGroup = async (req, res) => {
     });
   }
 };
-
 
 export const getAllParticipatingGroups = async (req, res) => {
   try {
@@ -206,7 +200,6 @@ export const getAllParticipatingGroups = async (req, res) => {
     error(res, err.message);
   }
 };
-
 
 export const deleteDevice = async (req, res) => {
   try {

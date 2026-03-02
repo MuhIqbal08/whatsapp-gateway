@@ -56,7 +56,9 @@ const Page = () => {
       const res = await api.get("/api-key/keys");
 
       if (res.data.apiKey) {
-        setApiKey("************");
+      console.log('apiKey', res.data.apiKey)
+
+        setApiKey(res.data.apiKey.apiKeyHash);
         // setApiKey(res.data.apiKey); // placeholder
       }
     } catch (err) {
@@ -109,7 +111,7 @@ const Page = () => {
         {activeTab === "profile" && (
           <div className="space-y-6 animate-fade-in">
             <div className="flex items-center gap-4 pb-4 border-b border-gray-200">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center text-white text-xl font-bold">
+              <div className="w-16 h-16 rounded-full bg-linear-to-br from-cyan-500 to-emerald-500 flex items-center justify-center text-white text-xl font-bold">
                 JD
               </div>
               <div>
@@ -168,7 +170,7 @@ const Page = () => {
               </div>
             </div>
 
-            <button className="px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-emerald-500 text-white font-semibold rounded-lg hover:shadow-md transition-all duration-200 text-sm">
+            <button className="px-6 py-2.5 bg-linear-to-r from-cyan-500 to-emerald-500 text-white font-semibold rounded-lg hover:shadow-md transition-all duration-200 text-sm">
               Save Changes
             </button>
           </div>
@@ -238,7 +240,7 @@ const Page = () => {
                 </p>
               </div>
 
-              <button className="w-full px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-emerald-500 text-white font-semibold rounded-lg hover:shadow-md transition-all duration-200 text-sm">
+              <button className="w-full px-6 py-2.5 bg-linear-to-r from-cyan-500 to-emerald-500 text-white font-semibold rounded-lg hover:shadow-md transition-all duration-200 text-sm">
                 Update Password
               </button>
             </div>
@@ -278,7 +280,7 @@ const Page = () => {
                 <button
                   onClick={generateApiKey}
                   disabled={isGenerating}
-                  className="px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-emerald-500 text-white font-semibold rounded-lg hover:shadow-md transition-all duration-200 flex items-center gap-2 mx-auto text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-6 py-2.5 bg-linear-to-r from-cyan-500 to-emerald-500 text-white font-semibold rounded-lg hover:shadow-md transition-all duration-200 flex items-center gap-2 mx-auto text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isGenerating ? (
                     <>
@@ -343,9 +345,19 @@ const Page = () => {
                   </div>
                 </div>
 
+                {/* Security Tips */}
+                <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
+                  <p className="text-emerald-700 text-xs">
+                    <strong className="font-semibold">Security tips:</strong>{" "}
+                    Keep your API key secure and never share it publicly. Store
+                    it safely as you wont be able to view it again once you
+                    leave this page.
+                  </p>
+                </div>
+                
                 {/* Warning untuk Revoke */}
                 <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex gap-3">
-                  <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
                   <div>
                     <p className="text-amber-800 text-sm font-medium mb-1">
                       Need to revoke your API key?
@@ -357,15 +369,6 @@ const Page = () => {
                   </div>
                 </div>
 
-                {/* Security Tips */}
-                <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
-                  <p className="text-emerald-700 text-xs">
-                    <strong className="font-semibold">Security tips:</strong>{" "}
-                    Keep your API key secure and never share it publicly. Store
-                    it safely as you wont be able to view it again once you
-                    leave this page.
-                  </p>
-                </div>
               </div>
             )}
           </div>
